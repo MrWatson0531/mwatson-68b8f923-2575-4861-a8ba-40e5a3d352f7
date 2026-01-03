@@ -1,0 +1,7 @@
+export enum Permission {
+    CREATE_TASK = 'CREATE_TASK',
+    READ_TASK = 'READ_TASK',
+    UPDATE_TASK = 'UPDATE_TASK',
+    DELETE_TASK = 'DELETE_TASK',
+    MANAGE_USERS = 'MANAGE_USERS'
+}

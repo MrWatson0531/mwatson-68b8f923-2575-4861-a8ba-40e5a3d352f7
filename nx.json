@@ -25,7 +25,8 @@
           "buildDepsName": "build-deps",
           "watchDepsName": "watch-deps"
         }
-      }
+      },
+      "exclude": ["auth/*"]
     },
     {
       "plugin": "@nx/vite/plugin",
@@ -69,6 +70,15 @@
         "targetName": "test"
       },
       "exclude": ["api-e2e/**/*"]
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["auth/*"],
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        }
+      }
     }
   ],
   "release": {

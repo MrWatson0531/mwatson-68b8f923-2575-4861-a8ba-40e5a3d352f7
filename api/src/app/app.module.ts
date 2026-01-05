@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TasksModule } from '../tasks/tasks.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from '../users/users.module';
+import { OrgsModule } from '../orgs/orgs.module';
 
 @Module({
   imports: [
@@ -14,7 +16,9 @@ import { AppService } from './app.service';
       autoLoadEntities: true,
       synchronize: true, // OK for take-home
     }),
-    TasksModule
+    TasksModule,
+    UsersModule,
+    OrgsModule
   ],
   controllers: [AppController],
   providers: [AppService],

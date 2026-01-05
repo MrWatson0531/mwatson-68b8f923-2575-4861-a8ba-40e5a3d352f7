@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ApiService } from './api.service';
+import { ApiService, User } from './api.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +11,7 @@ export class AppComponent {
   taskTitle = '';
   tasks: any[] = [];
 
-  constructor(private api: ApiService) {}
+  constructor(public api: ApiService) {}
 
   login() {
     this.api.login(this.email, this.password).subscribe(res => {
@@ -22,6 +22,10 @@ export class AppComponent {
 
   loadTasks() {
     this.api.getTasks().subscribe(res => (this.tasks = res));
+  }
+
+  canCreateTask(): boolean {
+    return this.api.currentUser?.role === 'Admin' || this.api.currentUser?.role === 'Owner';
   }
 
   addTask() {

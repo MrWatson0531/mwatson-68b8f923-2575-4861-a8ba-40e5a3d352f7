@@ -3,9 +3,15 @@
 <input placeholder="Password" [(ngModel)]="password" type="password" />
 <button (click)="login()">Login</button>
 
+<p *ngIf="api.currentUser">Logged in as: {{ api.currentUser.role }}</p>
+
 <h2>Tasks</h2>
-<input placeholder="New Task" [(ngModel)]="taskTitle" />
-<button (click)="addTask()">Add Task</button>
+
+// only shows if user can create tasks
+<div *ngIf="canCreateTask()">
+  <input placeholder="New Task" [(ngModel)]="taskTitle" />
+  <button (click)="addTask()">Add Task</button>
+</div>
 
 <ul>
   <li *ngFor="let task of tasks">{{ task.title }}</li>

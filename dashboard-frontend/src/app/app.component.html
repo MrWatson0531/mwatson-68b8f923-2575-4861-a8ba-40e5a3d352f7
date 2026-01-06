@@ -1,18 +1,48 @@
-<h2>Login</h2>
-<input placeholder="Email" [(ngModel)]="email" />
-<input placeholder="Password" [(ngModel)]="password" type="password" />
-<button (click)="login()">Login</button>
+<div class="max-w-xl mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6 text-center">Task Dashboard</h1>
 
-<p *ngIf="api.currentUser">Logged in as: {{ api.currentUser.role }}</p>
+  
+  <div *ngIf="!auth.isLoggedIn()" class="mb-6 space-y-2">
+  <input [(ngModel)]="email" placeholder="Email" class="w-full border p-2 rounded" />
+  <input [(ngModel)]="password" type="password" placeholder="Password" class="w-full border p-2 rounded" />
+  <button (click)="login()" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Login</button>
+  <p *ngIf="loginError" class="text-red-500 mt-2">{{ loginError }}</p>
 
-<h2>Tasks</h2>
-
-// only shows if user can create tasks
-<div *ngIf="canCreateTask()">
-  <input placeholder="New Task" [(ngModel)]="taskTitle" />
-  <button (click)="addTask()">Add Task</button>
+  <p class="text-gray-500 mt-2 text-sm">
+    Demo users: <br/>
+    Owner: owner@example.com / owner123 <br/>
+    Admin: admin@example.com / admin123 <br/>
+    Viewer: viewer@example.com / viewer123
+  </p>
 </div>
 
-<ul>
-  <li *ngFor="let task of tasks">{{ task.title }}</li>
-</ul>
+  
+  <div *ngIf="auth.isLoggedIn()">
+    <div class="flex gap-2 mb-4">
+      <input
+        [(ngModel)]="newTaskTitle"
+        placeholder="New task"
+        class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+      <button
+        (click)="createTask()"
+        [disabled]="!newTaskTitle || !auth.canCreateTask()"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+      >
+        Add
+      </button>
+    </div>
+
+    <ul class="space-y-2">
+      <li *ngFor="let task of tasks" class="flex justify-between items-center border p-3 rounded hover:shadow-sm transition-shadow">
+        <span>{{ task.title }}</span>
+        <div class="flex gap-2">
+          <button *ngIf="auth.canEditTask()" (click)="editTask(task)" class="text-yellow-500 hover:text-yellow-600 font-medium">Edit</button>
+          <button *ngIf="auth.canDeleteTask()" (click)="deleteTask(task.id)" class="text-red-500 hover:text-red-600 font-medium">Delete</button>
+        </div>
+      </li>
+    </ul>
+
+    <p *ngIf="tasks.length === 0" class="mt-6 text-center text-gray-400">No tasks yet. Add one above!</p>
+  </div>
+</div>

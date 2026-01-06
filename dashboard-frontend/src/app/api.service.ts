@@ -1,50 +1,35 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
-
-export interface User {\
-    id: number;
-    email: string;
-    role: 'Owner' | 'Admin' | 'User';
-    organizationId: number;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = 'http://localhost:3333'; 
-  private token: string = '';
-  public currentUser: User | null = null;
+  private baseUrl = 'http://localhost:3000/tasks';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
-  setToken(token: string) {
-    this.token = token;
+  private headers(): { headers: HttpHeaders } {
+    return {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.auth.getToken() || ''}`,
+      }),
+    };
   }
 
-  login(email: string, password: string): Observable<User> {
-    return new Observable(observer => {
-      this.http.post<any>(`${this.baseUrl}/auth/login`, { email, password }).subscribe(res => {
-        this.setToken(res.access_token);
-        this.currentUser = res.user;
-        observer.next(res.user);
-        observer.complete();
-      });
-    });
-  }
-
-  getTasks(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/tasks`, this.getAuthHeader());
+  getTasks(): Observable<any[]> {
+    return this.http.get<any[]>(this.baseUrl, this.headers());
   }
 
   createTask(title: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/tasks`, { title }, this.getAuthHeader());
+    return this.http.post(this.baseUrl, { title }, this.headers());
   }
 
-  private getAuthHeader() {
-    return {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${this.token}`,
-      }),
-    };
+  updateTask(id: number, title: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/${id}`, { title }, this.headers());
+  }
+
+  deleteTask(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/${id}`, this.headers());
   }
 }

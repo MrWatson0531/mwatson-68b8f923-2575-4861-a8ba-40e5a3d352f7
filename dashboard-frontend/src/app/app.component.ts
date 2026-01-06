@@ -1,38 +1,54 @@
-import { Component } from '@angular/core';
-import { ApiService, User } from './api.service';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './app.component.html',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  tasks: any[] = [];
+  newTaskTitle = '';
   email = '';
   password = '';
-  taskTitle = '';
-  tasks: any[] = [];
+  loginError = '';
 
-  constructor(public api: ApiService) {}
+  constructor(public api: ApiService, public auth: AuthService) {}
+
+  ngOnInit() {
+    if (this.auth.isLoggedIn()) this.loadTasks();
+  }
 
   login() {
-    this.api.login(this.email, this.password).subscribe(res => {
-      this.api.setToken(res.access_token);
-      this.loadTasks();
+    this.loginError = '';
+    this.auth.login(this.email, this.password).subscribe({
+      next: () => this.loadTasks(),
+      error: () => this.loginError = 'Invalid credentials'
     });
   }
 
   loadTasks() {
-    this.api.getTasks().subscribe(res => (this.tasks = res));
+    this.api.getTasks().subscribe(tasks => this.tasks = tasks);
   }
 
-  canCreateTask(): boolean {
-    return this.api.currentUser?.role === 'Admin' || this.api.currentUser?.role === 'Owner';
-  }
-
-  addTask() {
-    if (!this.taskTitle) return;
-    this.api.createTask(this.taskTitle).subscribe(() => {
-      this.taskTitle = '';
+  createTask() {
+    if (!this.newTaskTitle) return;
+    this.api.createTask(this.newTaskTitle).subscribe(() => {
+      this.newTaskTitle = '';
       this.loadTasks();
     });
+  }
+
+  editTask(task: any) {
+    const title = prompt('Edit task', task.title);
+    if (title) this.api.updateTask(task.id, title).subscribe(() => this.loadTasks());
+  }
+
+  deleteTask(id: number) {
+    if (confirm('Delete this task?')) this.api.deleteTask(id).subscribe(() => this.loadTasks());
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task } from './tasks.entity';
+import { Task } from './task.entity';
 
 @Injectable()
 export class TasksService {
@@ -11,18 +11,14 @@ export class TasksService {
   ) {}
 
   create(title: string, user: any) {
-    const task = this.repo.create({
-      title,
-      org: { id: user.orgId },
-    });
-    return this.repo.save(task);
-  }
+  const task = this.repo.create({ title, org: user.org });
+  return this.repo.save(task);
+}
 
   findAll(user: any) {
-    return this.repo.find({
-      where: { org: { id: user.orgId } },
-    });
-  }
+  if (user.role === 'Owner') return this.repo.find();
+  return this.repo.find({ where: { org: { id: user.org.id } } });
+}
 
   async update(id: number, title: string, user: any) {
     const task = await this.repo.findOne({
